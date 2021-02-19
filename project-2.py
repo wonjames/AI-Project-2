@@ -6,91 +6,66 @@ def build_dict(seq, key):
 
 
 def isColorable(G, max_color):
-    
+    # manually gets the first node
     first_node = None
     for i, n in enumerate(G.nodes()):
         if i == 0:
             first_node = n
             break
+
     # list of dict that holds the color:node values
     colors = []
     for n in G.nodes():
         d = {"colors": [x for x in range(max_color)], "node": n}
         colors.append(d)
+
     # sets the first node to color 0
     for c in colors:
         if(c["node"] == first_node):
             c["colors"] = 0
-    #print(colors)
+    # this builds the a key dictionary
     node_info = build_dict(colors, key="node")
-    #print(node_info)
+    # gets the neighbors of the node
     graph_list = list(G.neighbors(first_node))
-    getNextNode(G, graph_list, first_node, node_info, 0)
-    #print("next node: ", next_node)
-
-    #graph_list = list(G.neighbors(next_node))
-    #print(graph_list)
-    #next_node = getNextNode(G,graph_list, next_node, node_info)
-    #setNodeColor(next_node, node_info)
-    #print("next node: ", next_node)
-    
-    #graph_list = list(G.neighbors(next_node))
-    #print(graph_list)
-    #next_node = getNextNode(G,graph_list, next_node, node_info)
-    #setNodeColor(next_node, node_info)
-    #print("next node: ", next_node)
-    
-    #graph_list = list(G.neighbors(next_node))
-    #print(graph_list)
-    #next_node = getNextNode(G,graph_list, next_node, node_info)
-    #setNodeColor(next_node, node_info)
-    #print("next node: ", next_node)
-    
+    val = getNextNode(G, graph_list, first_node, node_info, 0)
+    if val == True:
+        print("Graph is colorable")
+    else:
+        print("Graph is not colorable")
     print("Final: ", node_info)
-    #next_node = node_info.get(next_node)
-    #setNodeColor(next_node)
-    #print(next_node)
-    #print(node_info)
-    # get the neigbors colors it can still be (MRV)
-    # choose the one with less choices
-    # set it to a color
-    # repeat for all neighbors
 
-    #a = [0] * length
-    #for i, n in enumerate(graph_list):
-    #    l = list(G.neighbors(n))
-    #    a[i] = len(l)
-    #print(max(a))
-
+# sets the node color to the first available color
 def setNodeColor(node, node_info):
     node = node_info.get(node)
-    if type(node['colors']) != int:
+    if type(node['colors']) != int and len(node['colors']):
         color = node['colors'][0]
         node['colors'] = color
-    #print("node info: ", node_info)
 
+# recursive function that finds the next node
 def getNextNode(G, neighbors, node, node_info, v):
+    # base case: we have gone through the entire graph
     if v == len(G.nodes):
         return True
-    # neighbors of A --> B, C
+    # min remaining value: based on number of colors the neighbors can be
+    # set as 999 initially
     mrv = 999
-    next_node = None
     arr = []
+    # goes through the neighbors one by one
     for n in neighbors:
         n_dict = node_info.get(n)
         n_dict['colors'] = removeColor(node_info.get(node), n_dict)
+        # if the n_dict['colors'] returns as an int, then there is only one possibility for the color
+        # therefore it is already set
         if type(n_dict['colors']) == int:
             n_color_length = 999
         else:
             n_color_length = len(n_dict['colors'])
-        if mrv > n_color_length:
-            mrv = n_color_length
-            next_node = n
-            mrv_dict = {"node": next_node, "mrv": mrv}
-            arr.append(mrv_dict)
-        else:
-            mrv_dict = {"node": n, "mrv": n_color_length}
-            arr.append(mrv_dict)
+        # adds the node and mrv to a list of dict to be looped through later
+        mrv_dict = {"node": n, "mrv": n_color_length}
+        arr.append(mrv_dict)
+    # this loops through the array of neighbor nodes 
+    # finds the mrv node, pops it from the array when we back track
+    # we don't go back to the same node
     for i in range(len(arr)):
         min_mrv = 999
         node = arr[0]
@@ -102,28 +77,25 @@ def getNextNode(G, neighbors, node, node_info, v):
                 node = x
                 var = iter
         if min_mrv == 999:
-            return False
+            return True
         if len(arr):
             arr.pop(var)
-        
+        # gets the neighbors
         graph_list = list(G.neighbors(node['node']))
+        # sets the color for the current node
         setNodeColor(node['node'], node_info)
         print("Next Node:", i, node)
         print('Nodes neighbors: ', graph_list)
+        # recursively goes to the next node
         if getNextNode(G,graph_list, node['node'], node_info, v+1) == True:
             return True
-
-
     return False
-    #graph_list = list(G.neighbors(next_node))
-    #setNodeColor(next_node, node_info)
-    #next_node = getNextNode(G,graph_list, next_node, node_info, v+1)
     
-
+# removes the unavailable colors from the neighbors once the node is assigned a color
 def removeColor(n, n2):
-    #print(n['colors'])
     n_color = n['colors']
     n2_color = n2['colors']
+    # n2_color can either be an array of numbers(colors) or be a single int
     if type(n2_color) == int:
         if n_color == n2_color:
             n2_color.remove(n_color)
@@ -134,12 +106,15 @@ def removeColor(n, n2):
 
 if __name__ == '__main__':
     G = nx.Graph()
-    G.add_edge('A', 'B')
-    G.add_edge('B', 'D')
-    G.add_edge('A', 'C')
     G.add_edge('A', 'D')
+    G.add_edge('A', 'C')
+    G.add_edge('D', 'C')
+    G.add_edge('C', 'B')
     G.add_edge('C', 'E')
-    G.add_edge('D', 'E')
+    G.add_edge('B', 'E')
+    G.add_edge('E', 'G')
+    G.add_edge('E', 'F')
+    G.add_edge('E', 'G')
     G.add_edge('B', 'F')
     isColorable(G, 3)
     

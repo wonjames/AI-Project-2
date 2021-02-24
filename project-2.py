@@ -41,6 +41,7 @@ def setNodeColor(node, node_info, index):
     if type(node['colors']) != int and len(node['colors']):
         color = node['colors'][index]
         node['colors'] = color
+        #print(node)
 
 # recursive function that finds the next node
 def getNextNode(G, neighbors, node, node_info, v):
@@ -80,17 +81,17 @@ def getNextNode(G, neighbors, node, node_info, v):
                 node = x
                 var = iter
         if min_mrv == 999:
-            return True
+            continue
         if len(arr):
             arr.pop(var)
-        # gets the neighbors
+            # gets the neighbors
         graph_list = list(G.neighbors(node['node']))
         findLCV(node['node'], graph_list, node_info)
-        # sets the color for the current node
-        #setNodeColor(node['node'], node_info)
-        #print("Next Node:", i, node)
-        #print('Nodes neighbors: ', graph_list)
-        # recursively goes to the next node
+            # sets the color for the current node
+            #setNodeColor(node['node'], node_info)
+            #print("Next Node:", i, node)
+            #print('Nodes neighbors: ', graph_list)
+            # recursively goes to the next node
         if getNextNode(G,graph_list, node['node'], node_info, v+1) == True:
             return True
     return False
@@ -101,8 +102,11 @@ def findLCV(node, neighbors, node_info):
     #print("node_info: ", node_info)
     
     node = node_info.get(node)
+    if type(node['colors']) == int:
+        setNodeColor(node['node'], node_info, 0)
+        return
     if not len(node['colors']): 
-        print(node) 
+        print('here',node) 
         return
     lcv_array = [0]*len(node['colors'])
     for n in neighbors:
@@ -135,7 +139,7 @@ def removeColor(n, n2):
 
 if __name__ == '__main__':
     G = nx.Graph()
-    file = open("graph4.txt", "r")
+    file = open("graph3.txt", "r")
     color = 0
     for i,line in enumerate(file):
         if "colors =" in line:

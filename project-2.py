@@ -1,6 +1,7 @@
 import networkx as nx
 
-
+# method that creates a key for the dictionary to index by
+# from: https://stackoverflow.com/questions/4391697/find-the-index-of-a-dict-within-a-list-by-matching-the-dicts-value
 def build_dict(seq, key):
     return dict((d[key], dict(d, index=index)) for (index, d) in enumerate(seq))
 
@@ -32,12 +33,12 @@ def isColorable(G, max_color):
     # calls the recursive function that assigns the colors to the nodes
     getNextNode(G, graph_list, first_node, node_info, 0)
     # if any of the nodes has an empty color array, then the graph is not colorable
+    print("Final Graph: ", node_info)
     for n in node_info:
         var = node_info.get(n)
         if var['colors'] == []:
-            print("Graph is not colorable")
-            return
-    print("Graph is colorable! Final: ", node_info)
+            return False
+    return True
 
 # sets the node color to the first available color
 def setNodeColor(node, node_info, index):
@@ -48,7 +49,6 @@ def setNodeColor(node, node_info, index):
 
 # recursive function that finds the next node
 def getNextNode(G, neighbors, node, node_info, v):
-    print("Current Node: ", node_info.get(node))
     # base case: we have gone through the entire graph
     if v == len(G.nodes):
         return True
@@ -96,36 +96,23 @@ def getNextNode(G, neighbors, node, node_info, v):
         if min_mrv == 999:
             continue
         if len(arr):
-            y = arr.pop(var)
-            #node = node_info.get(y['node'])
-        print("Next Node: ", node)
+            arr.pop(var)
         # gets the neighbors of the new node
         graph_list = list(G.neighbors(node['node']))
         # sets the color based off of LCV
         findLCV(node['node'], graph_list, node_info)
-        print("Next node neighbors: ", graph_list)
-            # sets the color for the current node
-            #setNodeColor(node['node'], node_info)
-            #print("Next Node:", i, node)
-            #print('Nodes neighbors: ', graph_list)
-            # recursively goes to the next node
-        print()
+        # recursively goes to the next node
         if getNextNode(G,graph_list, node['node'], node_info, v+1) == True:
             return True
     return False
 
 # finds the least constraint value and sets the node color to that value
 def findLCV(node, neighbors, node_info):
-    #print("neighbor: ", neighbors)
-    #print("node: ", node)
-    #print("node_info: ", node_info)
-    
     node = node_info.get(node)
     if type(node['colors']) == int:
         setNodeColor(node['node'], node_info, 0)
         return
     if not len(node['colors']): 
-        print('here',node) 
         return
     lcv_array = [0]*len(node['colors'])
     for n in neighbors:
@@ -138,7 +125,6 @@ def findLCV(node, neighbors, node_info):
                 if color in n['colors']:
                     lcv_array[i] += 1
     index = lcv_array.index(min(lcv_array))
-    #print("LCV array index: ", index)
     setNodeColor(node['node'], node_info, index)
 
     
@@ -158,7 +144,7 @@ def removeColor(n, n2):
 
 if __name__ == '__main__':
     G = nx.Graph()
-    file = open("graph4.txt", "r")
+    file = open("graph.txt", "r")
     color = 0
     for i,line in enumerate(file):
         if "colors =" in line:
@@ -168,5 +154,8 @@ if __name__ == '__main__':
             edge = [int(s) for s in line.split(',')]
             G.add_edge(edge[0], edge[1])
             print(edge)
-    isColorable(G, color[0])
-    
+    coloring = isColorable(G, color[0])
+    if coloring:
+        print('Graph is colorable')
+    else:
+        print('Graph is not colorable')

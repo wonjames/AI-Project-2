@@ -144,16 +144,16 @@ def removeColor(n, n2):
 
 if __name__ == '__main__':
     G = nx.Graph()
-    file = open("graph.txt", "r")
+    file = open("graph4.txt", "r")
     color = 0
     for i,line in enumerate(file):
         if "colors =" in line:
             color = [int(s) for s in line.split() if s.isdigit()]
-            print(color)
+            
         if i > 3:
             edge = [int(s) for s in line.split(',')]
             G.add_edge(edge[0], edge[1])
-            print(edge)
+           
     coloring = isColorable(G, color[0])
     if coloring:
         print('Graph is colorable')

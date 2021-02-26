@@ -35,8 +35,8 @@ def isColorable(G, max_color):
     # if any of the nodes has an empty color array, then the graph is not colorable
     print("Final Graph: ", node_info)
     for n in node_info:
-        var = node_info.get(n)
-        if var['colors'] == []:
+        node = node_info.get(n)
+        if node['colors'] == []:
             return False
     return True
 
@@ -79,7 +79,7 @@ def getNextNode(G, neighbors, node, node_info, v):
     for i in range(len(arr)):
         min_mrv = 999
         neighbor_length = -1
-        var = 0
+        index = 0
         for iter, x in enumerate(arr):
             mrv = x['mrv']
             n_len = len(list(G.neighbors(x['node'])))
@@ -87,16 +87,16 @@ def getNextNode(G, neighbors, node, node_info, v):
             if mrv == min_mrv:
                 if neighbor_length < n_len:
                     node = x
-                    var = iter
+                    index = iter
             if mrv < min_mrv:
                 min_mrv = mrv
                 node = x
-                var = iter
+                index = iter
                 neighbor_length = n_len
         if min_mrv == 999:
             continue
         if len(arr):
-            arr.pop(var)
+            arr.pop(index)
         # gets the neighbors of the new node
         graph_list = list(G.neighbors(node['node']))
         # sets the color based off of LCV
